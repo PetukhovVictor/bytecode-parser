@@ -5,7 +5,7 @@ import java.io.File
 class DirectoryWalker(private val dirPath: String) {
     private fun walkDirectory(callback: (File) -> Unit) {
         val dir = File(dirPath)
-        dir.walkTopDown().maxDepth(3).forEach {
+        dir.walkTopDown().forEach {
             if (it.isFile) {
                 callback(it)
             }
