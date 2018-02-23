@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bytecode-parser.iml" filepath="$PROJECT_DIR$/.idea/modules/bytecode-parser.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bytecode-parser_main.iml" filepath="$PROJECT_DIR$/.idea/modules/bytecode-parser_main.iml" group="bytecode-parser" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bytecode-parser_test.iml" filepath="$PROJECT_DIR$/.idea/modules/bytecode-parser_test.iml" group="bytecode-parser" />
+    </modules>
+  </component>
+</project>
