@@ -28,29 +28,30 @@ class Runner {
             }
         }
 
-        fun group(classDirectory: String) {
-            val grouper = BytecodeFilesGrouper()
+        fun group(sourceClassesDirectory: String, packagesOutputDirectory: String) {
+            val grouper = BytecodeFilesGrouper(packagesOutputDirectory)
 
-            DirectoryWalker(classDirectory, maxDepth = 2).run {
+            DirectoryWalker(sourceClassesDirectory, maxDepth = 2).run {
                 if (it.isDirectory) {
-                    val repoIdentifier = it.relativeTo(File(classDirectory)).invariantSeparatorsPath.split("/")
+                    val repoIdentifier = it.relativeTo(File(sourceClassesDirectory)).invariantSeparatorsPath.split("/")
                     if (repoIdentifier.size == 2) {
                         DirectoryWalker(it.absolutePath).run {
                             if (it.isFile && it.name.endsWith(BytecodeFilesGrouper.BYTECODE_JSON_EXT)) {
                                 grouper.group(it, repoIdentifier[0], repoIdentifier[1])
                             }
                         }
+                        println("REPO PROCESSED: $it")
                     }
                 }
             }
 
-
+            grouper.writeClassUsagesMap()
         }
 
         fun run(stage: Stage, directory: String) {
            when (stage) {
                Stage.PARSING -> parse(directory)
-               Stage.GROUPING -> group(directory)
+               Stage.GROUPING -> group(directory, "${File(directory).parent}/classes_grouped")
            }
         }
     }
