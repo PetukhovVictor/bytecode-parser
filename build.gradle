@@ -10,7 +10,7 @@ buildscript {
 }
 
 group 'org.jetbrains.bytecodeparser'
-version '1.0-SNAPSHOT'
+version '0.1'
 
 apply plugin: 'kotlin'
 
