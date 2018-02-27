@@ -10,7 +10,7 @@ typealias ClassesByRepo = MutableMap<String, ClassesByPackage>
 
 class BytecodeFilesGrouper(private val packagesOutputDirectory: String) {
     companion object {
-        const val BYTECODE_JSON_EXT = "class.bc.json"
+        const val BYTECODE_JSON_EXT = "class.json"
         const val CLASS_USAGES_MAP_DIRECTORY = "usages"
         const val CLASS_PACKAGES_DIRECTORY = "packages"
     }
