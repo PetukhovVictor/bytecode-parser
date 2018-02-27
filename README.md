@@ -24,5 +24,5 @@ To run program you must run `main` function in `main.kt`, not forgetting to set 
 
 Also you can run jar file (you can download from the [release assets](https://github.com/PetukhovVictor/bytecode-parser/releases)):
 ```
-java -jar ./bytecode-parser-1.0-SNAPSHOT.jar -i ./assets --parsing
+java -jar ./bytecode-parser-0.1.jar -i ./assets --parsing
 ```
