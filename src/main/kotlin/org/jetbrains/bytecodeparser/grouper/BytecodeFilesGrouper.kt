@@ -23,6 +23,7 @@ class BytecodeFilesGrouper(private val packagesOutputDirectory: String) {
 
         if (match == null) {
             println("MATCHING ERROR: $file")
+            return
         }
 
         val packagesDirectory = "$packagesOutputDirectory/$CLASS_PACKAGES_DIRECTORY"
