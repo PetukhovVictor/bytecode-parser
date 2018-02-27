@@ -10,7 +10,7 @@ typealias Instructions = MutableMap<String, MutableList<String>>
 class BytecodeParser {
     companion object {
         const val JAR_FILE_EXT = "jar"
-        const val JSON_FILE_EXT = "bc.json"
+        const val JSON_FILE_EXT = "json"
     }
 
     private fun write(file: File, packageName: String, instructions: Instructions) {
@@ -32,16 +32,16 @@ class BytecodeParser {
 
         classParsed.methods.forEach {
             if (it.code == null) {
-                // println("\"$it\" method skip (no bytecode)")
+                println("\"$it\" method skip (no bytecode)")
                 return@forEach
             }
             val methodName = it.name
             instructions[methodName] = mutableListOf()
             InstructionList(it.code.code).forEach { instructions[methodName]!!.add(it.instruction.name) }
-            // println("\"$it\" method bytecode was written")
+            println("\"$it\" method bytecode was written")
         }
 
-        // println("PARSED: $file")
+        println("PARSED: $file")
         write(file, classParsed.packageName, instructions)
     }
 }

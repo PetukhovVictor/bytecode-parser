@@ -10,15 +10,26 @@ enum class Stage {
     PARSING, GROUPING
 }
 
-class Runner {
-    companion object {
-        fun parse(jarsDirectory: String) {
-            val parser = BytecodeParser()
-            val extractor = ClassFilesExtractor()
+object Runner {
+    fun reposWalk(sourceDirectory: String, callback: (username: String, repo: String, directory: File) -> Unit) {
+        DirectoryWalker(sourceDirectory, maxDepth = 2).run {
+            if (it.isDirectory) {
+                val repoIdentifier = it.relativeTo(File(sourceDirectory)).invariantSeparatorsPath.split("/")
+                if (repoIdentifier.size == 2) {
+                    callback(repoIdentifier[0], repoIdentifier[1], it)
+                }
+            }
+        }
+    }
 
-            DirectoryWalker(jarsDirectory).run {
+    fun parse(jarsDirectory: String) {
+        val parser = BytecodeParser()
+        val extractor = ClassFilesExtractor(jarsDirectory)
+
+        reposWalk(jarsDirectory) { username: String, repo: String, directory: File ->
+            DirectoryWalker(directory.absolutePath).run {
                 if (it.isFile && it.extension == BytecodeParser.JAR_FILE_EXT) {
-                    val classFilePaths = extractor.extract(it)
+                    val classFilePaths = extractor.extract(it, username, repo)
 
                     if (classFilePaths != null) {
                         classFilePaths.forEach { parser.parse(it) }
@@ -27,32 +38,27 @@ class Runner {
                 }
             }
         }
+    }
 
-        fun group(sourceClassesDirectory: String, packagesOutputDirectory: String) {
-            val grouper = BytecodeFilesGrouper(packagesOutputDirectory)
+    fun group(sourceClassesDirectory: String, packagesOutputDirectory: String) {
+        val grouper = BytecodeFilesGrouper(packagesOutputDirectory)
 
-            DirectoryWalker(sourceClassesDirectory, maxDepth = 2).run {
-                if (it.isDirectory) {
-                    val repoIdentifier = it.relativeTo(File(sourceClassesDirectory)).invariantSeparatorsPath.split("/")
-                    if (repoIdentifier.size == 2) {
-                        DirectoryWalker(it.absolutePath).run {
-                            if (it.isFile && it.name.endsWith(BytecodeFilesGrouper.BYTECODE_JSON_EXT)) {
-                                grouper.group(it, repoIdentifier[0], repoIdentifier[1])
-                            }
-                        }
-                        println("REPO PROCESSED: $it")
-                    }
+        reposWalk(sourceClassesDirectory) { username: String, repo: String, directory: File ->
+            DirectoryWalker(directory.absolutePath).run {
+                if (it.isFile && it.name.endsWith(BytecodeFilesGrouper.BYTECODE_JSON_EXT)) {
+                    grouper.group(it, username, repo)
                 }
             }
-
-            grouper.writeClassUsagesMap()
+            println("REPO PROCESSED: $directory")
         }
 
-        fun run(stage: Stage, directory: String) {
-           when (stage) {
-               Stage.PARSING -> parse(directory)
-               Stage.GROUPING -> group(directory, "${File(directory).parent}/classes_grouped")
-           }
-        }
+        grouper.writeClassUsagesMap()
+    }
+
+    fun run(stage: Stage, directory: String) {
+       when (stage) {
+           Stage.PARSING -> parse(directory)
+           Stage.GROUPING -> group(directory, "${File(directory).parent}/classes_grouped")
+       }
     }
 }

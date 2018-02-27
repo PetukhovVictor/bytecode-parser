@@ -7,7 +7,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipException
 import java.util.zip.ZipFile
 
-class ClassFilesExtractor {
+class ClassFilesExtractor(private val jarsDirectory: String) {
     private val buf = ByteArray(1024)
     private val classesDir = "classes"
 
@@ -24,10 +24,10 @@ class ClassFilesExtractor {
         fileOutputStream.close()
     }
 
-    fun extract(file: File): MutableList<File>? {
+    fun extract(file: File, username: String, repo: String): MutableList<File>? {
         try {
             val zipArchive = ZipFile(file)
-            val pathFolder = "${file.parent}/$classesDir"
+            val pathFolder = "$jarsDirectory/$username/$repo/$classesDir"
             val classFiles: MutableList<File> = mutableListOf()
 
             zipArchive.use { zipFile ->
@@ -38,9 +38,8 @@ class ClassFilesExtractor {
                     val currentFile = File(path)
 
                     if (currentFile.extension == "class") {
-                        val classFile = File("$pathFolder/${zipEntry.name}")
-                        copyFromJar(classFile, zipArchive, zipEntry)
-                        classFiles.add(classFile)
+                        copyFromJar(currentFile, zipArchive, zipEntry)
+                        classFiles.add(currentFile)
                     }
                 }
             }
