@@ -27,7 +27,7 @@ class BytecodeFilesGrouper(private val packagesOutputDirectory: String) {
         }
 
         val packagesDirectory = "$packagesOutputDirectory/$CLASS_PACKAGES_DIRECTORY"
-        val packageName = if (match!!.groups["package"] != null) match.groups["package"]!!.value else ""
+        val packageName = if (match.groups["package"] != null) match.groups["package"]!!.value else ""
         val className = match.groups["class"]!!.value
         val repoIdentifier = "$username:$repo"
 
