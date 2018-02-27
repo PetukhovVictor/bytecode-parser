@@ -20,41 +20,41 @@ class BytecodeFilesGrouper(private val packagesOutputDirectory: String) {
 
     fun group(file: File, username: String, repo: String) {
         val match = bytecodeFilenameRegex.matchEntire(file.name)
-        val packagesDirectory = "$packagesOutputDirectory/$CLASS_PACKAGES_DIRECTORY"
 
-        if (match != null) {
-            val packageName = if (match.groups["package"] != null) match.groups["package"]!!.value else ""
-            val className = match.groups["class"]!!.value
-            val repoIdentifier = "$username:$repo"
-
-            if (!classesByRepo.contains(repoIdentifier)) {
-                classesByRepo[repoIdentifier] = mutableMapOf()
-            }
-
-            val classesByPackageInRepo = classesByRepo[repoIdentifier]
-
-            if (!classesByPackageInRepo!!.contains(packageName)) {
-                classesByPackageInRepo[packageName] = mutableSetOf()
-            }
-
-            classesByPackageInRepo[packageName]!!.add(className)
-
-            val basePath: String
-            if (packageName.isNotEmpty()) {
-                val packagePath = packageName.split(".").joinToString("/")
-                val packageFullPath = "$packagesDirectory/$packagePath"
-
-                File(packageFullPath).mkdirs()
-                basePath = "$packageFullPath/$className"
-            } else {
-                basePath = "$packagesDirectory/$className:$username:$repo"
-            }
-            val destFilepath = File("$basePath.$BYTECODE_JSON_EXT")
-            if (!Files.exists(destFilepath.toPath())) {
-                file.copyTo(destFilepath)
-            }
-        } else {
+        if (match == null) {
             println("MATCHING ERROR: $file")
+        }
+
+        val packagesDirectory = "$packagesOutputDirectory/$CLASS_PACKAGES_DIRECTORY"
+        val packageName = if (match!!.groups["package"] != null) match.groups["package"]!!.value else ""
+        val className = match.groups["class"]!!.value
+        val repoIdentifier = "$username:$repo"
+
+        if (!classesByRepo.contains(repoIdentifier)) {
+            classesByRepo[repoIdentifier] = mutableMapOf()
+        }
+
+        val classesByPackageInRepo = classesByRepo[repoIdentifier]
+
+        if (!classesByPackageInRepo!!.contains(packageName)) {
+            classesByPackageInRepo[packageName] = mutableSetOf()
+        }
+
+        classesByPackageInRepo[packageName]!!.add(className)
+
+        val basePath: String
+        if (packageName.isNotEmpty()) {
+            val packagePath = packageName.split(".").joinToString("/")
+            val packageFullPath = "$packagesDirectory/$packagePath"
+
+            File(packageFullPath).mkdirs()
+            basePath = "$packageFullPath/$className"
+        } else {
+            basePath = "$packagesDirectory/$className:$username:$repo"
+        }
+        val destFilepath = File("$basePath.$BYTECODE_JSON_EXT")
+        if (!Files.exists(destFilepath.toPath())) {
+            file.copyTo(destFilepath)
         }
     }
 
