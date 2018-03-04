@@ -1,6 +1,7 @@
 package org.jetbrains.bytecodeparser
 
 import org.jetbrains.bytecodeparser.grouper.BytecodeFilesGrouper
+import org.jetbrains.bytecodeparser.helpers.TimeLogger
 import org.jetbrains.bytecodeparser.io.DirectoryWalker
 import org.jetbrains.bytecodeparser.parser.BytecodeParser
 import org.jetbrains.bytecodeparser.parser.ClassFilesExtractor
@@ -22,22 +23,38 @@ object Runner {
         }
     }
 
-    fun parse(jarsDirectory: String) {
-        val parser = BytecodeParser()
-        val extractor = ClassFilesExtractor(jarsDirectory)
+    fun walkAndParse(parser: BytecodeParser, extractor: ClassFilesExtractor, directory: File, username: String, repo: String, isPrint: Boolean = true) {
+        DirectoryWalker(directory.absolutePath).run {
+            if (it.isFile && it.extension == BytecodeParser.JAR_FILE_EXT) {
+                val classFilePaths = extractor.extract(it, username, repo)
 
-        reposWalk(jarsDirectory) { username: String, repo: String, directory: File ->
-            DirectoryWalker(directory.absolutePath).run {
-                if (it.isFile && it.extension == BytecodeParser.JAR_FILE_EXT) {
-                    val classFilePaths = extractor.extract(it, username, repo)
-
-                    if (classFilePaths != null) {
-                        classFilePaths.forEach { parser.parse(it) }
+                if (classFilePaths != null) {
+                    classFilePaths.forEach { parser.parse(it, isPrint) }
+                    if (isPrint) {
                         println("PARSED (${classFilePaths.size} CLASSES): ${it.absolutePath}")
                     }
                 }
             }
         }
+    }
+
+    fun walkAndParse(jarsDirectory: String, directory: File, username: String, repo: String, isPrint: Boolean = true) {
+        val parser = BytecodeParser()
+        val extractor = ClassFilesExtractor(jarsDirectory)
+
+        walkAndParse(parser, extractor, directory, username, repo, isPrint)
+    }
+
+    fun parse(jarsDirectory: String) {
+        val parser = BytecodeParser()
+        val extractor = ClassFilesExtractor(jarsDirectory)
+        val timeLogger = TimeLogger(task_name = "PARSING BYTECODE")
+
+        reposWalk(jarsDirectory) { username: String, repo: String, directory: File ->
+            walkAndParse(parser, extractor, directory, username, repo)
+        }
+
+        timeLogger.finish()
     }
 
     fun group(sourceClassesDirectory: String, packagesOutputDirectory: String) {

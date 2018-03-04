@@ -26,22 +26,28 @@ class BytecodeParser {
         return classParsed.packageName
     }
 
-    fun parse(file: File) {
+    fun parse(file: File, isPrint: Boolean) {
         val classParsed = ClassParser(file.absolutePath).parse()
         val instructions: Instructions = mutableMapOf()
 
         classParsed.methods.forEach {
             if (it.code == null) {
-                println("\"$it\" method skip (no bytecode)")
+                if (isPrint) {
+                    println("\"$it\" method skip (no bytecode)")
+                }
                 return@forEach
             }
             val methodName = it.name
             instructions[methodName] = mutableListOf()
             InstructionList(it.code.code).forEach { instructions[methodName]!!.add(it.instruction.name) }
-            println("\"$it\" method bytecode was written")
+            if (isPrint) {
+                println("\"$it\" method bytecode was written")
+            }
         }
 
-        println("PARSED: $file")
+        if (isPrint) {
+            println("PARSED: $file")
+        }
         write(file, classParsed.packageName, instructions)
     }
 }
