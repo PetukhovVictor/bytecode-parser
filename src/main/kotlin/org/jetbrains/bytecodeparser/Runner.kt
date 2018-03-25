@@ -1,10 +1,10 @@
 package org.jetbrains.bytecodeparser
 
-import org.jetbrains.bytecodeparser.grouper.BytecodeFilesGrouper
+import org.jetbrains.bytecodeparser.grouping.BytecodeFilesGrouper
 import org.jetbrains.bytecodeparser.helpers.TimeLogger
 import org.jetbrains.bytecodeparser.io.DirectoryWalker
-import org.jetbrains.bytecodeparser.parser.BytecodeParser
-import org.jetbrains.bytecodeparser.parser.ClassFilesExtractor
+import org.jetbrains.bytecodeparser.parsing.BytecodeParser
+import org.jetbrains.bytecodeparser.parsing.ClassFilesExtractor
 import java.io.File
 
 enum class Stage {
@@ -41,8 +41,10 @@ object Runner {
     fun walkAndParse(jarsDirectory: String, directory: File, username: String, repo: String, isPrint: Boolean = true) {
         val parser = BytecodeParser()
         val extractor = ClassFilesExtractor(jarsDirectory)
+        val timeLogger = TimeLogger(task_name = "PARSING BYTECODE")
 
         walkAndParse(parser, extractor, directory, username, repo, isPrint)
+        timeLogger.finish()
     }
 
     fun parse(jarsDirectory: String) {

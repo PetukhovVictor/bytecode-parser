@@ -1,4 +1,4 @@
-package org.jetbrains.bytecodeparser.parser
+package org.jetbrains.bytecodeparser.parsing
 
 import java.io.File
 import com.google.gson.Gson

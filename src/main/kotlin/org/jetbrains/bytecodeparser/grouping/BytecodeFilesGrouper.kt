@@ -1,4 +1,4 @@
-package org.jetbrains.bytecodeparser.grouper
+package org.jetbrains.bytecodeparser.grouping
 
 import org.jetbrains.bytecodeparser.io.FileWriter
 import java.io.File
